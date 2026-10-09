@@ -1,43 +1,3 @@
-<!--
-Sync Impact Report
-==================
-Version change: 1.1.0 → 1.2.0
-Bump rationale: MINOR, because the schema changes materially (a field is removed from an entity).
-This mirrors "adding a schema entity", which the versioning policy lists as MINOR. No principle is
-removed or redefined. The bump type was confirmed by the product owner on 2026-10-09.
-
-Modified principles: none
-Modified sections:
-- Domain Model & Data Constraints: `UserGame.AddedAt` (DateTime) removed from the entity table and
-  the ERD. Product-owner decision of 2026-10-09: not needed for the MVP (YAGNI). Nothing had been
-  migrated yet, so there is no data to preserve.
-Added sections: none
-Removed sections: none
-
-Dependent docs:
-- .context/02-data-model.md: ✅ updated (AddedAt removed from UserGame)
-- .specify/templates/*: ✅ no edit needed (they do not reference individual fields)
-
-Deferred intents (outside the constitution):
-- Geen_Gezever.Core/Entities/UserGame.cs still has the `AddedAt` property. The developer removes it
-  (mentor mode: Claude does not edit code).
-
-Resolver note: `.specify/scripts/powershell/resolve-template.ps1` could not run because PowerShell
-(pwsh) is not installed. No override, preset or extension layers exist (.specify/templates/overrides,
-.specify/presets and .specify/extensions are all missing), so the core constitution-template.md is
-the only layer. The existing structure was kept unchanged.
-
-Deferred items / open clarifications (the source docs do not define these yet):
-- TODO(DURATION_MATCH_DEFINITION): define what counts as an "exact duration match" against a game's
-  MinPlayTimeMinutes..MaxPlayTimeMinutes range, and which bound the ±15-minute stretch is measured
-  from.
-- TODO(SOFT_SCORE_WEIGHTS): define the relative weights of duration proximity and vibe matching.
-- TODO(SESSION_PERSISTENCE): decide whether the active source selection per game session is
-  persisted server-side (no Session entity exists in the ERD) or held in client state only.
-- TODO(SHARED_CONTRACTS): 01-architecture says Client references Core "for shared models/DTOs",
-  while DTOs are assigned to the Api layer. Decide where the shared DTO contracts live.
--->
-
 # Geen Gezever Constitution
 
 Geen Gezever is a mobile-first companion app that picks the right board game for the people in the
@@ -50,25 +10,30 @@ constitution is the binding contract derived from them.
 
 ### I. Layered Architecture & Dependency Boundaries (NON-NEGOTIABLE)
 
-The solution is a 3-tier layered architecture with a separate client. Dependencies flow inward
-toward Core only.
+The solution is a 3-tier layered architecture with a separate client and a shared contracts
+project. Dependencies flow inward toward Core. Api and Client meet only through Contracts.
 
 | Layer | Project | Responsibilities | Allowed references |
 | --- | --- | --- | --- |
 | Core | `Geen_Gezever.Core` (assembly `Geen_Gezever`) | Entities, value objects, domain logic, service interfaces, repository interfaces | None |
+| Contracts | `Geen_Gezever.Contracts` | DTOs (request and response shapes) shared by Api and Client | None |
 | Infrastructure | `Geen_Gezever.Infrastructure` | EF Core `DbContext`, migrations, repository implementations, BGG XML API client | Core |
-| API | `Geen_Gezever.Api` | Controllers/minimal APIs, routing, DTOs, request validation, DI setup, OpenAPI | Core, Infrastructure |
-| Client | `Geen_Gezever.Client` | Blazor WASM PWA pages, components, state containers, HTTP calls to the API | Core (shared models/DTOs only) |
+| API | `Geen_Gezever.Api` | Controllers/minimal APIs, routing, mapping between entities and DTOs, request validation, DI setup, OpenAPI | Core, Infrastructure, Contracts |
+| Client | `Geen_Gezever.Client` | Blazor WASM PWA pages, components, state containers, HTTP calls to the API | Contracts |
 
 - Core MUST have zero dependencies on external frameworks, databases, ORMs, or API/UI packages.
-  Core MUST NOT reference Infrastructure, Api or Client.
+  Core MUST NOT reference Contracts, Infrastructure, Api or Client.
+- Contracts MUST contain only DTOs: plain data shapes with no domain logic and no persistence
+  concerns. Contracts MUST NOT reference any other project.
+- Mapping between Core entities and Contracts DTOs MUST happen in the Api.
 - EF Core types (`DbContext`, `DbSet`, migrations, EF attributes or fluent configuration) MUST
   live in Infrastructure only.
 - All database access MUST go through repository interfaces or dedicated domain query handlers
   defined in Core and implemented in Infrastructure.
 - The Client MUST NOT receive a `DbContext`, `IQueryable`, or a raw persistence entity. Data
-  crosses the API boundary only as typed DTOs.
-- The Client MUST talk to the backend only over HTTP. It MUST NOT reference Infrastructure or Api.
+  crosses the API boundary only as typed DTOs defined in Contracts.
+- The Client MUST talk to the backend only over HTTP. It MUST NOT reference Core, Infrastructure or
+  Api.
 
 **Rationale**: strict boundaries keep the matching logic framework-free and unit-testable. They also
 allow the database to switch from SQLite to PostgreSQL without touching the domain or the UI.
@@ -169,13 +134,13 @@ product owner and the implementer on the same page.
 | **Game** | `Id` | Guid | PK |
 | | `BggId` | int | Unique index |
 | | `Title` | string | |
-| | `ThumbnailUrl` | string | |
-| | `ImageUrl` | string | |
+| | `ThumbnailUrl` | string? | Not every BGG item has an image |
+| | `ImageUrl` | string? | Not every BGG item has an image |
 | | `MinPlayers` | int | Used by the hard filter |
 | | `MaxPlayers` | int | Used by the hard filter |
 | | `MinPlayTimeMinutes` | int | Used by the duration soft filter |
 | | `MaxPlayTimeMinutes` | int | Used by the duration soft filter |
-| | `RulesUrl` | string | |
+| | `RulesUrl` | string? | Not supplied by the BGG XML API, so often empty |
 | **UserGame** | `Id` | Guid | PK. Allows duplicate copies of a game per user |
 | | `UserId` | Guid | FK → User |
 | | `GameId` | Guid | FK → Game |
@@ -205,13 +170,13 @@ erDiagram
         Guid Id PK
         int BggId UK
         string Title
-        string ThumbnailUrl
-        string ImageUrl
+        string ThumbnailUrl "nullable"
+        string ImageUrl "nullable"
         int MinPlayers
         int MaxPlayers
         int MinPlayTimeMinutes
         int MaxPlayTimeMinutes
-        string RulesUrl
+        string RulesUrl "nullable"
     }
     USER_GAME {
         Guid Id PK
@@ -241,19 +206,29 @@ tests for each rule below.
 2. **Hard filter (player count)**: keep a game only when
    `MinPlayers <= RequestedPlayers AND MaxPlayers >= RequestedPlayers`. A game that does not
    support the exact requested player count is excluded, with no exceptions.
-3. **Soft filters (ranking)**: the remaining games are scored and ordered by:
-   - **Duration proximity**: how close the game's play time is to the requested duration.
-   - **Vibe match**: overlap between the requested vibes and the game's `GameVibe` tags.
-4. **Output**: the Top 3 highest-scoring games (Principle V).
-5. **Empty match fallback (Smart Time Stretch)**: when zero games match the requested duration
-   exactly, return instead:
-   - at most **2** games whose duration is **at most 15 minutes shorter** than requested, and
-   - at most **1** game whose duration is **at most 15 minutes longer** than requested.
+3. **Exact duration match**: a game matches when
+   `MinPlayTimeMinutes <= RequestedDuration AND MaxPlayTimeMinutes >= RequestedDuration`.
+4. **Ranking**: the matching games are ordered by:
+   1. **Vibe match** (primary): the number of requested vibes that the game has as `GameVibe` tags.
+      More overlap ranks higher.
+   2. **Duration proximity** (tiebreaker only): the distance between `RequestedDuration` and the
+      midpoint of the game's range, `(MinPlayTimeMinutes + MaxPlayTimeMinutes) / 2`. A smaller
+      distance ranks higher.
 
-   The player-count hard filter stays strictly enforced during the fallback.
-6. **Tinder swipe mode**: the deck combines exact duration matches with games inside the
-   **±15-minute buffer**, so there is enough variety to swipe through. The hard filter and the
-   active-source rule still apply to every card.
+   **Rationale**: if a game is fun, the exact duration matters less.
+5. **Output**: the Top 3 highest-ranked games (Principle V).
+6. **Empty match fallback (Smart Time Stretch)**: when zero games match the requested duration
+   exactly, return instead:
+   - at most **2 shorter** games:
+     `RequestedDuration - 15 <= MaxPlayTimeMinutes < RequestedDuration`, and
+   - at most **1 longer** game:
+     `RequestedDuration < MinPlayTimeMinutes <= RequestedDuration + 15`.
+
+   Within each group, games are ordered by the ranking in rule 4. The player-count hard filter
+   stays strictly enforced during the fallback.
+7. **Tinder swipe mode**: the deck combines the exact duration matches (rule 3) with all shorter
+   and longer games inside the 15-minute bounds of rule 6, so there is enough variety to swipe
+   through. The hard filter and the active-source rule still apply to every card.
 
 ## Technology Stack & Quality Standards
 
@@ -266,6 +241,9 @@ tests for each rule below.
 - **Frontend**: Blazor WebAssembly as an installable PWA, with a service worker for asset caching
   and standalone launch from the iOS/Android home screen.
 - **Client state**: scoped C# state container services injected into components.
+- **Session state**: the active source selection of a game session lives client-side only, in a
+  state container persisted to `localStorage`. There is no server-side `Session` entity. Adding
+  server-side persistence later is easier than removing it.
 - **Styling**: Tailwind CSS, utility-first.
 - **Tooling**: Visual Studio Code with the C# Dev Kit, and Git with a feature-branch workflow.
 
@@ -317,4 +295,4 @@ erDiagram
   matching rules. Additional complexity MUST be justified in writing.
 - `.context/CLAUDE.md` holds the runtime guidance for AI assistants.
 
-**Version**: 1.2.0 | **Ratified**: 2026-09-29 | **Last Amended**: 2026-10-09
+**Version**: 2.0.0 | **Ratified**: 2026-09-29 | **Last Amended**: 2026-10-10

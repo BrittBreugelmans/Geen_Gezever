@@ -2,7 +2,7 @@
 
 ## Entities
 - **User:** `Id` (Guid), `Username`, `Email`.
-- **Game:** `Id` (Guid), `BggId` (int, Unique index), `Title`, `ThumbnailUrl`, `ImageUrl`, `MinPlayers`, `MaxPlayers`, `MinPlayTimeMinutes`, `MaxPlayTimeMinutes`, `RulesUrl`.
+- **Game:** `Id` (Guid), `BggId` (int, Unique index), `Title`, `ThumbnailUrl` (string?), `ImageUrl` (string?), `MinPlayers`, `MaxPlayers`, `MinPlayTimeMinutes`, `MaxPlayTimeMinutes`, `RulesUrl` (string?, not supplied by BGG).
 - **UserGame:** `Id` (Guid), `UserId` (Guid), `GameId` (Guid), `GuestOwnerName` (string?, null = host owned), `GameLocation` (string?, optional description of shelf/spot).
 - **Vibe:** `Id` (int), `Name` (string), `Slug` (string, URL-safe identifier).
 - **GameVibe:** `GameId` (Guid), `VibeId` (int). Composite primary key `(GameId, VibeId)`.

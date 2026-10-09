@@ -12,8 +12,8 @@ Zet de vijf entities uit [02-data-model.md](../02-data-model.md) om naar C#-klas
 - [X] `User`
 - [X] `Game`
 - [X] `UserGame`
-- [ ] `GameVibe`
-- [ ] `dotnet build` in de terminal
+- [X] `GameVibe`
+- [X] `dotnet build` in de terminal
 
 ## Klaar wanneer
 

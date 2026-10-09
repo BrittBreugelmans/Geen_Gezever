@@ -2,6 +2,7 @@
 
 ## 1. Solution Structure (.NET Solution)
 - `Geen_Gezever.Core`: Domain entities, value objects, domain logic, service contracts, repository interfaces. Zero third-party dependencies.
+- `Geen_Gezever.Contracts`: DTOs shared by Api and Client. No references to other projects.
 - `Geen_Gezever.Infrastructure`: EF Core `DbContext`, SQL migrations, BGG XML API client, repository implementations.
 - `Geen_Gezever.Api`: ASP.NET Core Web API, controllers/endpoints, validation, OpenAPI/Swagger configuration.
 - `Geen_Gezever.Client`: Blazor WebAssembly PWA, UI components, client-side state, HTTP client calls.
@@ -17,6 +18,7 @@
 - **Framework:** Blazor WebAssembly (.NET WASM).
 - **Application Type:** Progressive Web App (PWA) with service worker for fast asset caching and standalone home-screen launch on iOS/Android.
 - **State Management:** Scoped C# state container services injected into Blazor components.
+- **Session State:** The active source selection for a game session (which closets and guests are in play tonight) lives client-side only, persisted to `localStorage`. No server-side session.
 - **Styling:** Tailwind CSS with utility-first layout classes.
 
 ## 4. UI/UX Standards & Accessibility
