@@ -1,0 +1,6 @@
+@Geen_Gezever.Api_HostAddress = http://localhost:5008
+
+GET {{Geen_Gezever.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Geen_Gezever.Api/Geen_Gezever.Api.csproj" />
+  <Project Path="Geen_Gezever.Client/Geen_Gezever.Client.csproj" />
+  <Project Path="Geen_Gezever.Core/Geen_Gezever.csproj" />
+  <Project Path="Geen_Gezever.Infrastructure/Geen_Gezever.Infrastructure.csproj" />
+</Solution>
