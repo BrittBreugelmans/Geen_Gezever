@@ -17,4 +17,11 @@ public class Game
     public int MaxPlayTimeMinutes {get; set;}
 
     public string? RulesUrl {get; set;}
+
+
+
+    public bool IsPlayersAmountInRange(int players)
+    {
+        return MinPlayers <= players && MaxPlayers >= players;
+    }
 }

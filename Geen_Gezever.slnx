@@ -3,4 +3,5 @@
   <Project Path="Geen_Gezever.Client/Geen_Gezever.Client.csproj" />
   <Project Path="Geen_Gezever.Core/Geen_Gezever.csproj" />
   <Project Path="Geen_Gezever.Infrastructure/Geen_Gezever.Infrastructure.csproj" />
+  <Project Path="Geen_Gezever.Test/Geen_Gezever.Test.csproj" />
 </Solution>

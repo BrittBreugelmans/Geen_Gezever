@@ -11,15 +11,15 @@ Je oefent hier twee nieuwe dingen: een testproject opzetten en werken volgens **
 
 ## Stappen
 
-- [ ] Maak een feature branch vanaf `dev`
-- [ ] Maak een testproject aan (zie "Vooraf beslissen")
-- [ ] Voeg het testproject toe aan de solution
-- [ ] Geef het testproject een referentie naar Core
-- [ ] **Red:** schrijf je eerste test, die faalt (of zelfs niet compileert)
-- [ ] **Green:** schrijf net genoeg code in Core om die test te laten slagen
-- [ ] Herhaal Red → Green voor je andere testgevallen
-- [ ] **Refactor:** maak je code netter terwijl alle tests groen blijven
-- [ ] `dotnet test` toont alle tests groen
+- [X] Maak een feature branch vanaf `dev`
+- [X] Maak een testproject aan (zie "Vooraf beslissen")
+- [X] Voeg het testproject toe aan de solution
+- [X] Geef het testproject een referentie naar Core
+- [X] **Red:** schrijf je eerste test, die faalt (of zelfs niet compileert)
+- [X] **Green:** schrijf net genoeg code in Core om die test te laten slagen
+- [X] Herhaal Red → Green voor je andere testgevallen
+- [X] **Refactor:** maak je code netter terwijl alle tests groen blijven
+- [X] `dotnet test` toont alle tests groen
 
 ## Vooraf beslissen
 
