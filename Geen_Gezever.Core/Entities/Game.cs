@@ -18,10 +18,26 @@ public class Game
 
     public string? RulesUrl {get; set;}
 
-
+    // <-- Helpers --> 
+    private const int StretchPlayTimeMinutes = 15;
 
     public bool IsPlayersAmountInRange(int players)
     {
         return MinPlayers <= players && MaxPlayers >= players;
+    }
+
+    public bool IsPlayTimeInRange(int duration)
+    {
+        return MinPlayTimeMinutes <= duration &&  duration <= MaxPlayTimeMinutes;
+    }
+
+    public bool IsPlayTimeShorterStretchInRange(int duration)
+    {
+        return (duration - StretchPlayTimeMinutes) <= MaxPlayTimeMinutes && MaxPlayTimeMinutes < duration;
+    }
+
+    public bool IsPlayTimeLongerStretchInRange(int duration)
+    {
+        return duration < MinPlayTimeMinutes && MinPlayTimeMinutes <= (duration + StretchPlayTimeMinutes);
     }
 }
