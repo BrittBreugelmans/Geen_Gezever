@@ -1,4 +1,5 @@
-﻿using Geen_Gezever.Entities;
+﻿using System.Data.Common;
+using Geen_Gezever.Entities;
 
 namespace Geen_Gezever.Test;
 
@@ -58,6 +59,17 @@ public class TestGame
     private Game NewGameWithPlayTimeHelper(int min, int max)
     {
         return new Game {Title = "Catan", MinPlayTimeMinutes = min, MaxPlayTimeMinutes = max};
+    }
+
+    static readonly int[] vibes = [1,4,7];
+    private Game NewGameWithVibesHelper(int[] gameVibesIds)
+    {
+        ICollection<GameVibe> gameVibes = new List<GameVibe>();
+        foreach (int id in gameVibesIds)
+        {
+            gameVibes.Add(new GameVibe {VibeId = id});
+        }
+        return new Game {Title = "Catan", GameVibes = gameVibes};
     }
 
 
@@ -181,5 +193,38 @@ public class TestGame
         //Assert: controleer het resultaat
         Assert.True(resultLong);
         Assert.True(resultShort);
+    }
+
+    
+    // <-- Vibe matching --> 
+    [Theory]
+    [InlineData(new [] {1,4}, 2)]
+    [InlineData(new [] {4,7,3}, 2)]
+    [InlineData(new [] {5,8,2}, 0)]
+    [InlineData(new [] {1,4,7}, 3)]
+    public void VibeMatchCount_ReturnsNumberOfMatchedVibes_WhenVibesMatchGame(int[] gameVibesIdsParam, int expected_result)
+    {
+        //Arrange: zet klaar wat je nodig hebt vibes
+        var game = NewGameWithVibesHelper(gameVibesIdsParam);
+    
+        //Act: voer precies 1 ding uit
+        var result = game.VibeMatchCount(vibes);
+
+        //Assert: controleer het resultaat
+        Assert.Equal(expected_result, result);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    public void VibeMatchCount_ReturnsNumberOfMatchedVibes_WhenGameHasNoVibes(int expected_result)
+    {
+        //Arrange: zet klaar wat je nodig hebt vibes
+        var game = new Game {Title = "Catan"};
+    
+        //Act: voer precies 1 ding uit
+        var result = game.VibeMatchCount(vibes);
+
+        //Assert: controleer het resultaat
+        Assert.Equal(expected_result, result);
     }
 }

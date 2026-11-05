@@ -18,14 +18,35 @@ public class Game
 
     public string? RulesUrl {get; set;}
 
+    public ICollection<GameVibe> GameVibes {get; init;} = new List<GameVibe>();
+
     // <-- Helpers --> 
     private const int StretchPlayTimeMinutes = 15;
 
+    // <-- Vibe matching -->
+    public int VibeMatchCount(int[] vibes)
+    {
+        int counter = 0;
+        foreach(int vibe in vibes)
+        {
+            foreach(GameVibe gameVibe in GameVibes)
+            {
+                if(gameVibe.VibeId == vibe)
+                {
+                    counter++;
+                }
+            }
+        }
+        return counter;
+    }
+
+    // <-- Players --> 
     public bool IsPlayersAmountInRange(int players)
     {
         return MinPlayers <= players && MaxPlayers >= players;
     }
 
+    // <-- PlayTime --> 
     public bool IsPlayTimeInRange(int duration)
     {
         return MinPlayTimeMinutes <= duration &&  duration <= MaxPlayTimeMinutes;

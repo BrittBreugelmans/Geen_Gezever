@@ -31,18 +31,26 @@ Dit zijn jouw keuzes. Noteer wat je kiest en waarom.
    - iets anders dat je zelf bedenkt.
 
    Stel jezelf bij elke optie twee vragen. Blijft Core vrij van EF Core (zie [01-architecture.md](../01-architecture.md))? En wie moet de vibes "invullen" voor je methode kan werken?
+
+   **Keuze:** een collectie op `Game` (navigation property).
+   - Collectie van `GameVibe`. Die bevat het `VibeId`, en dat volstaat om te vergelijken. Je hoeft de `Vibe` zelf niet op te halen.
+   - Core blijft vrij van EF Core: een navigation property is gewoon een C#-collectie.
+   - Let op: EF Core vult die collectie niet automatisch bij een query (zie eager loading / `Include`). Dat komt later in Infrastructure.
+   - Waarom deze keuze: _nog in te vullen_
 2. **Wat geef je mee als "gevraagde vibes"?** `Vibe`-objecten, hun `Id`'s of hun slugs? Wat moet je met elke keuze vergelijken?
+
+   **Keuze:** de `Id`'s. Die zijn uniek en kunnen rechtstreeks vergeleken worden met `GameVibe.VibeId`.
 
 ## Stappen
 
-- [ ] Merge opdracht 3 en maak een nieuwe feature branch vanaf `dev`
-- [ ] Beslis de twee punten uit "Vooraf beslissen"
-- [ ] Schrijf de code in Core
-- [ ] Schrijf je testgevallen **op papier**, **op basis van de regel**. Kijk daarbij niet naar je code.
-- [ ] Schrijf de tests en maak ze groen
-- [ ] **Breek je code bewust**, bijvoorbeeld door `+ 1` bij de telling te zetten of door een voorwaarde om te draaien. Faalt er minstens één test? Zet daarna de code terug.
-- [ ] **Refactor:** zowel de code als je tests
-- [ ] `dotnet test` toont alle tests groen
+- [X] Merge opdracht 3 en maak een nieuwe feature branch vanaf `dev`
+- [X] Beslis de twee punten uit "Vooraf beslissen"
+- [X] Schrijf de code in Core
+- [X] Schrijf je testgevallen **op papier**, **op basis van de regel**. Kijk daarbij niet naar je code.
+- [X] Schrijf de tests en maak ze groen
+- [X] **Breek je code bewust**, bijvoorbeeld door `+ 1` bij de telling te zetten of door een voorwaarde om te draaien. Faalt er minstens één test? Zet daarna de code terug.
+- [X] **Refactor:** zowel de code als je tests
+- [X] `dotnet test` toont alle tests groen
 
 ## Nieuw in deze opdracht
 
