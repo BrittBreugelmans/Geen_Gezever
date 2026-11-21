@@ -61,4 +61,15 @@ public class Game
     {
         return duration < MinPlayTimeMinutes && MinPlayTimeMinutes <= (duration + StretchPlayTimeMinutes);
     }
+
+    private int CalculateMiddleDuration()
+    {
+        return (MinPlayTimeMinutes + MaxPlayTimeMinutes) / 2;
+    }
+
+    public int CalculateDistanceToDuration(int duration)
+    {
+        return Math.Abs(CalculateMiddleDuration()-duration);
+    }
+
 }

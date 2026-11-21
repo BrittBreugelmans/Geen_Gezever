@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using Geen_Gezever.Entities;
+﻿using Geen_Gezever.Entities;
 
 namespace Geen_Gezever.Test;
 
@@ -54,25 +53,6 @@ public class TestGame
     }
 
 
-    // <-- Helper --> 
-    private const int dur = 50;
-    private Game NewGameWithPlayTimeHelper(int min, int max)
-    {
-        return new Game {Title = "Catan", MinPlayTimeMinutes = min, MaxPlayTimeMinutes = max};
-    }
-
-    static readonly int[] vibes = [1,4,7];
-    private Game NewGameWithVibesHelper(int[] gameVibesIds)
-    {
-        ICollection<GameVibe> gameVibes = new List<GameVibe>();
-        foreach (int id in gameVibesIds)
-        {
-            gameVibes.Add(new GameVibe {VibeId = id});
-        }
-        return new Game {Title = "Catan", GameVibes = gameVibes};
-    }
-
-
     // <-- Exacte match op speelduur --> 
     [Theory]
     [InlineData(45, 90)]
@@ -81,10 +61,10 @@ public class TestGame
     public void IsPlayTimeInRange_ReturnsTrue_WhenPlayTimeInRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeInRange(duration: dur);
+        var result = game.IsPlayTimeInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.True(result);
@@ -96,10 +76,10 @@ public class TestGame
     public void IsPlayTimeInRange_ReturnsFalse_WhenPlayTimeOUtOfRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeInRange(duration: dur);
+        var result = game.IsPlayTimeInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.False(result);
@@ -114,10 +94,10 @@ public class TestGame
     public void IsPlayTimeShorterStretchInRange_ReturnsTrue_WhenPlayTimeInRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeShorterStretchInRange(duration: dur);
+        var result = game.IsPlayTimeShorterStretchInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.True(result);
@@ -133,10 +113,10 @@ public class TestGame
     public void IsPlayTimeShorterStretchInRange_ReturnsFalse_WhenPlayTimeOutOfRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeShorterStretchInRange(duration: dur);
+        var result = game.IsPlayTimeShorterStretchInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.False(result);
@@ -152,10 +132,10 @@ public class TestGame
     public void IsPlayTimeLongerStretchInRange_ReturnsTrue_WhenPlayTimeInRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeLongerStretchInRange(duration: dur);
+        var result = game.IsPlayTimeLongerStretchInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.True(result);
@@ -170,10 +150,10 @@ public class TestGame
     public void IsPlayTimeLongerStretchInRange_ReturnsFalse_WhenPlayTimeOutOfRange(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var result = game.IsPlayTimeLongerStretchInRange(duration: dur);
+        var result = game.IsPlayTimeLongerStretchInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.False(result);
@@ -184,17 +164,35 @@ public class TestGame
     public void IsPlayTimeShorterAndLonger_ReturnsTrue_WhenMinHigherThanMax(int min, int max)
     {
         //Arrange: zet klaar wat je nodig hebt
-        var game = NewGameWithPlayTimeHelper(min, max);
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
     
         //Act: voer precies 1 ding uit
-        var resultLong = game.IsPlayTimeLongerStretchInRange(duration: dur);
-        var resultShort = game.IsPlayTimeShorterStretchInRange(duration: dur);
+        var resultLong = game.IsPlayTimeLongerStretchInRange(duration: GameTestHelper.dur);
+        var resultShort = game.IsPlayTimeShorterStretchInRange(duration: GameTestHelper.dur);
 
         //Assert: controleer het resultaat
         Assert.True(resultLong);
         Assert.True(resultShort);
     }
 
+    // <-- Berekenen van midden tot duration --> 
+    [Theory]
+    [InlineData(45, 90, 17)]
+    [InlineData(50, 70, 10)]
+    [InlineData(30, 60, 5)]
+    [InlineData(60, 120, 40)]
+    [InlineData(0, 100, 0)]
+    public void CalculateDistanceToDuration_ReturnsDistance_WhenPlayTimeAndDurationAreGiven(int min, int max, int expected_result)
+    {
+        //Arrange: zet klaar wat je nodig hebt
+        var game = GameTestHelper.NewGameWithPlayTimeHelper(min, max);
+    
+        //Act: voer precies 1 ding uit
+        var result = game.CalculateDistanceToDuration(duration: GameTestHelper.dur);
+
+        //Assert: controleer het resultaat
+        Assert.Equal(expected_result, result);
+    }
     
     // <-- Vibe matching --> 
     [Theory]
@@ -205,10 +203,10 @@ public class TestGame
     public void VibeMatchCount_ReturnsNumberOfMatchedVibes_WhenVibesMatchGame(int[] gameVibesIdsParam, int expected_result)
     {
         //Arrange: zet klaar wat je nodig hebt vibes
-        var game = NewGameWithVibesHelper(gameVibesIdsParam);
+        var game = GameTestHelper.NewGameWithVibesHelper(gameVibesIdsParam);
     
         //Act: voer precies 1 ding uit
-        var result = game.VibeMatchCount(vibes);
+        var result = game.VibeMatchCount(GameTestHelper.vibes);
 
         //Assert: controleer het resultaat
         Assert.Equal(expected_result, result);
@@ -222,7 +220,7 @@ public class TestGame
         var game = new Game {Title = "Catan"};
     
         //Act: voer precies 1 ding uit
-        var result = game.VibeMatchCount(vibes);
+        var result = game.VibeMatchCount(GameTestHelper.vibes);
 
         //Assert: controleer het resultaat
         Assert.Equal(expected_result, result);

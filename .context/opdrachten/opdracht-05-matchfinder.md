@@ -47,14 +47,25 @@ A en B hebben evenveel overlap, dus beslist de afstand. D wordt niet uitgesloten
 Dit zijn jouw keuzes. Noteer wat je kiest en waarom.
 
 1. **Waar en in welke vorm komt de `MatchFinder`?** Het is domeinlogica, dus ze hoort in Core (zie [01-architecture.md](../01-architecture.md)). Maar in welke map, en als wat? Een gewone class die je aanmaakt met `new`, een `static` class, iets anders? Denk eraan dat de API de `MatchFinder` later moet kunnen gebruiken.
+   **Keuze:** een `static` class `MatchFinderService` in de map `Services` in Core.
+   - Waarom `static`: de class houdt zelf geen gegevens bij, ze krijgt alles binnen via parameters.
+   - Waarom in `Services`: het is domeinlogica over meerdere games tegelijk (een *domain service*), geen entity.
+   - Nog te bekijken: hoe de API de class later gebruikt (dependency injection).
+
 2. **Hoe geef je de vraag mee?** Spelers, duur en vibe-Id's als losse parameters, of samen in één object? Kies je voor een object, wordt dat dan een `class` of een `record`? Denk terug aan wat je in opdracht 4 leerde over gelijkheid.
+   **Keuze:** samen in één `record` (spelers, duur en vibe-Id's).
+   - Waarom één object: de vergelijkingsmethode heeft `d` én de vibe-Id's nodig, zo blijft de parameterlijst kort.
+   - Waarom een `record`: een vraag verandert niet meer nadat ze gesteld is (immutable), en een record vergelijkt op waarde.
+   - Nog te bekijken: hoe de vergelijking op waarde werkt voor de collectie met vibe-Id's.
+   - Waarom `int[]` voor de vibe-Id's: zo kan ik ze rechtstreeks doorgeven aan `Game.VibeMatchCount(int[])`. Nadeel: de inhoud van een array kan na het aanmaken nog veranderen, dus de record is niet volledig immutable. Later eventueel bekijken: `IReadOnlyCollection<int>`.
+
 3. **Wat geef je terug?** Welk collectietype? En moet degene die de `MatchFinder` aanroept kunnen weten of het resultaat een exacte match is of een fallback? De UI zal dat later willen tonen.
 
 ## Stappen
 
-- [ ] Commit en merge opdracht 4, en maak een nieuwe feature branch vanaf `dev`
-- [ ] Beslis de drie punten uit "Vooraf beslissen"
-- [ ] Schrijf per regel je testgevallen **op papier**, vanuit de regel
+- [X] Commit en merge opdracht 4, en maak een nieuwe feature branch vanaf `dev`
+- [X] Beslis de drie punten uit "Vooraf beslissen"
+- [X] Schrijf per regel je testgevallen **op papier**, vanuit de regel
 - [ ] **Deel A:** filter, ranking en top 3, met tests
 - [ ] **Deel B:** de fallback, met tests
 - [ ] **Breek je code bewust**, zoals in opdracht 4. Faalt er minstens één test?

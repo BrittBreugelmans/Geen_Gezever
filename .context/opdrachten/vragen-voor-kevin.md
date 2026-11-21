@@ -40,6 +40,18 @@ Wat als dezelfde vibe twee keer in de gevraagde vibes zit?
   - Het kan in de praktijk niet voorkomen, bijvoorbeeld omdat de UI met aanvinkvakjes werkt. Dan is het geen probleem van de methode, maar moet dat wel ergens vastgelegd worden.
 - Opvolging: zodra dit beslist is, wordt het gedrag vastgelegd met een test.
 
+### 4. Afronding van het midden van de speelduur
+
+*Opdracht 5, `Game.CalculateDistanceToDuration`*
+
+Moet het midden van de speelduur exact berekend worden, of mag het afgekapt worden tot een geheel getal?
+
+- Context: de regel zegt `(MinPlayTimeMinutes + MaxPlayTimeMinutes) / 2`. In C# is dat een deling van twee `int`s, dus het deel na de komma valt weg: 45–90 geeft 67 in plaats van 67.5. Daardoor kunnen twee games als gelijk gezien worden terwijl ze dat niet zijn. Voorbeeld bij `d = 60` en gelijke vibe-overlap: 45–90 (echt midden 67.5, afstand 7.5) en 50–84 (midden 67, afstand 7) krijgen allebei afstand 7. Wie eerst staat, hangt dan af van de volgorde in de lijst.
+- Opties:
+  - Afkappen, zoals nu. Een halve minuut verschil maakt in de praktijk weinig uit.
+  - Exact rekenen met een kommagetal, zodat de game die echt dichter bij `d` ligt altijd voorgaat.
+- Huidige keuze: afkappen. De test met 45–90 → afstand 17 (bij `d = 50`) legt dat gedrag vast. Beslist Kevin anders, dan faalt die test en is duidelijk wat er moet veranderen.
+
 ## Beantwoord
 
 <!-- Verplaats vragen hierheen met het antwoord van Kevin -->
